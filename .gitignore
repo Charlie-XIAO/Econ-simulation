@@ -1,0 +1,11 @@
+# Python virtual environment
+myvenv/
+
+# Python cache
+__pycache__/
+
+# vscode settings
+.vscode/
+
+# drafts
+scheme.*
