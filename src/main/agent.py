@@ -15,9 +15,8 @@ class Agent(ABC):
         :param tool: the initial number of tool the agent has
         """
         self.id = random.randint(100000, 999999)
-        self.alive = 1
         self.inventory = {"food": food, "wood": wood, "ore": ore, "metal": metal, "tool": tool}
-
+    
     @abstractmethod
     def unit_work(self) -> None:
         """
@@ -37,11 +36,9 @@ class Agent(ABC):
     def die(self, reason:str) -> None:
         """
         :param reason: the reason that the agent dies
-        Description: kill the agent and report death due to the specified reason
+        Description: report death of agent due to the specified reason
         """
-        self.alive = 0
-        print("{} {}: died of {}", self.__class__.__name__, self.id, reason)
-    
+        print("{} {}: died of {}".format(self.__class__.__name__, self.id, reason))
 
     def consume(self, comodity:str, n:float) -> None:
         """
@@ -49,6 +46,7 @@ class Agent(ABC):
         :param n: the number of the specified comodity the agent consumes
         Description: consume the specified number of the specified commodity
         """
+        assert(self.inventory[comodity] >= n)
         self.inventory[comodity] -= n
 
     def produce(self, comodity:str, n:float) -> None:
@@ -57,7 +55,6 @@ class Agent(ABC):
         :param n: the number of the specified comodity the agent produces
         Description: produce the specified number of the specified commodity
         """
-        assert(self.inventory[comodity] >= n)
         self.inventory[comodity] += n
     
     @abstractmethod
@@ -82,27 +79,29 @@ class Farmer(Agent):
 
     # Overwrite abstract method
     def unit_work(self):
-        if self.inventory["tool"] >= 0.03:
-            source = max(self.inventory["wood"], 4)
+        if self.inventory["tool"] >= 0.2:
+            # Produce 7 food, consume 4 wood, abrade 0.2 tool
+            source = min(self.inventory["wood"], 4)
             self.consume("wood", source)
-            self.consume("tool", 0.03)
-            self.produce("food", 2 * source)
+            self.consume("tool", 0.2)
+            self.produce("food", 1.75 * source)
         else:
-            source = max(self.inventory["food"], 4)
+            # Produce 4 food, consume 4 wood
+            source = min(self.inventory["wood"], 4)
             self.consume("wood", source)
             self.produce("food", source)
     
     # Overwrite abstract method
     def shortage(self):
         shortage = {comodity: float(0) for comodity in ["food", "ore", "metal"]}
-        shortage["wood"] = 4 * UNIT_PER_DAY - self.inventory["wood"]
-        shortage["tool"] = 0.03 * UNIT_PER_DAY - self.inventory["tool"]
+        shortage["wood"] = max(4 * UNIT_PER_DAY - self.inventory["wood"], 0)
+        shortage["tool"] = max(0.2 * UNIT_PER_DAY - self.inventory["tool"], 0)
         return shortage
 
     # Overwrite abstract method
     def surplus(self):
         surplus = {comodity: float(0) for comodity in ["wood", "ore", "metal", "tool"]}
-        surplus["food"] = self.inventory["food"] - 8
+        surplus["food"] = max(self.inventory["food"] - 8, 0)
         return surplus
     
 class WoodCutter(Agent):
@@ -113,23 +112,25 @@ class WoodCutter(Agent):
     
     # Overwrite abstract method
     def unit_work(self):
-        if self.inventory["tool"] >= 0.03:
-            self.consume("tool", 0.03)
+        if self.inventory["tool"] >= 0.2:
+            # Produce 4 wood, abrade 0.2 tool
+            self.consume("tool", 0.2)
             self.produce("wood", 4)
         else:
+            # Produce 2 wood
             self.produce("wood", 2)
     
     # Overwrite abstract method
     def shortage(self):
         shortage = {comodity: float(0) for comodity in ["wood", "ore", "metal"]}
-        shortage["food"] = 8 - self.inventory["food"]
-        shortage["tool"] = 0.03 * UNIT_PER_DAY - self.inventory["tool"]
+        shortage["food"] = max(8 - self.inventory["food"], 0)
+        shortage["tool"] = max(0.2 * UNIT_PER_DAY - self.inventory["tool"], 0)
         return shortage
 
     # Overwrite abstract method
     def surplus(self):
         surplus = {comodity: float(0) for comodity in ["food", "ore", "metal", "tool"]}
-        surplus["wood"] = self.inventory["wood"]
+        surplus["wood"] = max(self.inventory["wood"], 0)
         return surplus
 
 class Miner(Agent):
@@ -140,23 +141,25 @@ class Miner(Agent):
     
     # Overwrite abstract method
     def unit_work(self):
-        if self.inventory["tool"] >= 0.05:
-            self.consume("tool", 0.05)
-            self.produce("ore", 8)
+        if self.inventory["tool"] >= 0.3:
+            # Produce 3 ore, abrade 0.3 tool
+            self.consume("tool", 0.3)
+            self.produce("ore", 3)
         else:
-            self.produce("ore", 4)
+            # Produce 1 ore
+            self.produce("ore", 1)
     
     # Overwrite abstract method
     def shortage(self):
         shortage = {comodity: float(0) for comodity in ["wood", "ore", "metal"]}
-        shortage["food"] = 8 - self.inventory["food"]
-        shortage["tool"] = 0.05 * UNIT_PER_DAY - self.inventory["tool"]
+        shortage["food"] = max(8 - self.inventory["food"], 0)
+        shortage["tool"] = max(0.3 * UNIT_PER_DAY - self.inventory["tool"], 0)
         return shortage
 
     # Overwrite abstract method
     def surplus(self):
         surplus = {comodity: float(0) for comodity in ["food", "wood", "metal", "tool"]}
-        surplus["ore"] = self.inventory["ore"]
+        surplus["ore"] = max(self.inventory["ore"], 0)
         return surplus
 
 class Refiner(Agent):
@@ -167,28 +170,30 @@ class Refiner(Agent):
     
     # Overwrite abstract method
     def unit_work(self):
-        if self.inventory["tool"] >= 0.05:
-            source = max(self.inventory["ore"], 2)
+        if self.inventory["tool"] >= 0.2:
+            # Produce 2 metal, consume 4 ore, abrade 0.2 tool
+            source = min(self.inventory["ore"], 4)
             self.consume("ore", source)
-            self.consume("tool", 0.05)
-            self.produce("metal", source)
+            self.consume("tool", 0.2)
+            self.produce("metal", 0.5 * source)
         else:
-            source = max(self.inventory["ore"], 4) // 2 * 2
+            # Produce 1 metal, consume 4 ore
+            source = min(self.inventory["ore"], 4)
             self.consume("ore", source)
-            self.produce("metal", source // 2)
+            self.produce("metal", 0.25 * source)
     
     # Overwrite abstract method
     def shortage(self):
         shortage = {comodity: float(0) for comodity in ["wood", "metal"]}
-        shortage["food"] = 8 - self.inventory["food"]
-        shortage["ore"] = 2 * UNIT_PER_DAY - self.inventory["ore"]
-        shortage["tool"] = 0.05 * UNIT_PER_DAY - self.inventory["tool"]
+        shortage["food"] = max(8 - self.inventory["food"], 0)
+        shortage["ore"] = max(4 * UNIT_PER_DAY - self.inventory["ore"], 0)
+        shortage["tool"] = max(0.2 * UNIT_PER_DAY - self.inventory["tool"], 0)
         return shortage
 
     # Overwrite abstract method
     def surplus(self):
         surplus = {comodity: float(0) for comodity in ["food", "wood", "ore", "tool"]}
-        surplus["metal"] = self.inventory["metal"]
+        surplus["metal"] = max(self.inventory["metal"], 0)
         return surplus
     
 class BlackSmith(Agent):
@@ -199,19 +204,19 @@ class BlackSmith(Agent):
     
     # Overwrite abstract method
     def unit_work(self):
-        if self.inventory["metal"] >= 2:
-            self.consume("metal", 2)
-            self.produce("tool", 1)
+        source = min(self.inventory["metal"], 1.2)
+        self.consume("metal", source)
+        self.produce("tool", 0.68 * source)
 
     # Overwrite abstract method
     def shortage(self):
         shortage = {comodity: float(0) for comodity in ["wood", "ore", "tool"]}
-        shortage["food"] = 8 - self.inventory["food"]
-        shortage["metal"] = 2 * UNIT_PER_DAY - self.inventory["metal"]
+        shortage["food"] = max(8 - self.inventory["food"], 0)
+        shortage["metal"] = max(1.2 * UNIT_PER_DAY - self.inventory["metal"], 0)
         return shortage
 
     # Overwrite abstract method
     def surplus(self):
         surplus = {comodity: float(0) for comodity in ["food", "wood", "ore", "metal"]}
-        surplus["tool"] = self.inventory["tool"]
+        surplus["tool"] = max(self.inventory["tool"], 0)
         return surplus
