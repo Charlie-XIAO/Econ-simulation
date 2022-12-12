@@ -4,8 +4,12 @@ myvenv/
 # Python cache
 __pycache__/
 
-# vscode settings
+# VSCode settings
 .vscode/
 
-# drafts
+# Drafts
 scheme.*
+
+# Plots and animations
+*.png
+*.html
