@@ -182,11 +182,6 @@ class WalrasianMarket(Market):
     # Overwrite abstract method
     def update_price(self):
         # Walrasian excess demand
-        """
-        这里是不是有问题 我大概改了一下 但是我也不知道改的对不对 还是得你自己再看
-        而且我看A和B还没有放进去 A和B我给你写了函数了 就是self.demand_matrix()和self.supply_matrix()
-        函数的返回类型你往上翻就有了 应该是list of np.ndarray (其实是list of np.array)
-        """
         def walras(p, A, B):
             e = np.zeros(len(self.agents))
             for j in range(len(self.agents)):
@@ -215,9 +210,6 @@ class WalrasianMarket(Market):
 
     # Overwrite abstract method
     def distribute(self):
-        """
-        这里我也稍微改了几笔 你看看是不是你本来想写的意思
-        """
         self.take_supply()
         A = self.demand_matrix()
         B = self.supply_matrix()
