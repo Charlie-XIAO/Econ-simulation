@@ -10,6 +10,7 @@ __pycache__/
 # Drafts
 scheme.*
 
-# Plots and animations
+# Logs, plots, and animations
+*.log
 *.png
 *.html
