@@ -102,14 +102,49 @@ def normal_win_take_layer(n:int, mean:float, std:float, steps:int, bias:float, l
     normal_population.plot_hist(save=True)
     normal_population.animate_hist()
 
+def fit_on_previous(bias:float, layers:int):
+    print("Fitting with transaction function win_take_layer, simulating 200000 steps")
+    print("Testing on equal population of size=2000, mean=100.00, transaction bias={:.0%}, layers={}".format(bias, layers))
+    equal_population = population.Population(2000, 100.00)
+    equal_population.simulate(transaction.win_take_layer, 200000, bias, layers)
+    equal_population.fit_hist(distributions=None, verbose=True, save=True)
+
+def final_test_on_simple_tax(tax:float):
+    potential_distributions = ["gamma", "expon", "lognorm", "pareto"]
+    print("Equal population, size=2000, mean=100.00, simulating 50000 steps")
+    print("Exchange strategy: winner takes some proportion of wealth from the loser")
+    print("                   with the loser resisting the loss of wealth at Lvl. 5")
+    print("                   the richer party has 60% chance of winning")
+    print("                   there is a {:.0%} tax for each exchange, later distributed among all".format(tax))
+    equal_population = population.Population(2000, 100.00)
+    equal_population.simulate(transaction.win_with_tax, 50000, 0.03, 0.6, 5)
+    equal_population.plot_gini_and_percentiles(verbose=True, save=True)
+    equal_population.plot_ordered_curves(save=True)
+    equal_population.plot_hist(save=True)
+    equal_population.fit_hist(distributions=potential_distributions, verbose=True, save=True)
+    equal_population.animate_hist()
+
+def final_test_on_combined_tex():
+    pass
+
 if __name__ == "__main__":
     print(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    "Configuration: None"
     # equal_win_take_partial(2000, 100.00, 20000)
     # uniform_win_take_partial(2000, 100.00, 20000)
     # normal_win_take_partial(2000, 100.00, 20.00, 20000)
+    "Configuration: {0.8, 0.6, 0.4, 0.2, 0.0}"
     # equal_win_take_biased(2000, 100.00, 20000, 0.8)
     # uniform_win_take_biased(2000, 100.00, 20000, 0.8)
-    # normal_win_take_biased(2000, 100.00, 20.00, 20000, 0.0)
-    # equal_win_take_layer(2000, 100.00, 20000, 0.8, 5)
-    # uniform_win_take_layer(2000, 100.00, 20000, 0.8, 5)
-    # normal_win_take_layer(2000, 100.00, 20.00, 20000, 0.8, 5)
+    # normal_win_take_biased(2000, 100.00, 20.00, 20000, 0.8)
+    "Configuration: {0.8, 0.6, 0.4, 0.2, 0.0}, {2, 5}"
+    # equal_win_take_layer(2000, 100.00, 20000, 0.8, 2)
+    # uniform_win_take_layer(2000, 100.00, 20000, 0.8, 2)
+    # normal_win_take_layer(2000, 100.00, 20.00, 20000, 0.8, 2)
+    """
+    Final tests: - win_take_layer   {0.5, 0.6}, {1, 5}
+                 - win_with_tax     {0.03, 0.1, 0.2, combined}
+    """
+    fit_on_previous(0.5, 1)
+    # final_test_on_simple_tax(0.03)
+    # final_test_on_combined_tax()

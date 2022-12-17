@@ -1,11 +1,14 @@
 from abc import ABC, abstractmethod
-from IPython import display
-from prettytable import PrettyTable
 
+import sys
 import random
 import numpy as np
+import pandas as pd
+import scipy.stats as stats
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+from IPython import display
+from prettytable import PrettyTable
 
 class Population(ABC):
 
@@ -136,6 +139,72 @@ class Population(ABC):
         with open("anim_hist.html", "w") as file:
             file.write(html.data)
         plt.close()
+    
+    def fit_hist(self, distributions=None, verbose=True, save=True):
+        """
+        :param distributions: the distributions from scipy.stats to fit the histogram, or None to be all <DEFAULT: None>
+        :param verbose: whether to print the verbose <DEFAULT: True>
+        :param save: whether to save the plot <DEFAULT: True>
+        Description: plot the histogram at the end of the simulation, onto which we fit the specified distributions, and plot or print verbose
+        """
+        # Initialized the original histogram of the final wealth distribution
+        data = self.current()
+        plt.figure(figsize=(9.6, 6.4))
+        plt.title("Distribution fitting of the histogram")
+        plt.hist(data, bins=100, alpha=0.5, histtype="bar", rwidth=0.8, density=True)
+        # Fit each distribution and evalutate the quality
+        hist, bin_edges = np.histogram(data, bins=100, density=True)
+        hist_bins = [(this + bin_edges[i + 1]) / 2 for i, this in enumerate(bin_edges[0:-1])]
+        # Get candidate distributions
+        candidate_distributions = []
+        for this in dir(stats):
+            if "fit" in eval("dir(stats.{})".format(this)):
+                candidate_distributions.append(this)
+        if distributions is None:
+            distributions = candidate_distributions
+        else:
+            distributions = [distr for distr in distributions if distr in candidate_distributions]
+        mses, ks_stats, ks_pvals = [], [], []
+        pdfs, params = {}, {}
+        for name in distributions:
+            try:
+                # Fitting distribution and computing errors
+                distribution = eval("stats.{}".format(name))
+                param = distribution.fit(data)
+                fit_pdf = distribution.pdf(hist_bins, *param)
+                mse = np.sum(np.square(fit_pdf - hist))
+                ks_stat, ks_pval = stats.kstest(data, distribution(*param).cdf)
+                # Storing information
+                mses.append(mse)
+                ks_stats.append(ks_stat)
+                ks_pvals.append(ks_pval)
+                pdfs[name] = fit_pdf
+                params[name] = tuple([float("{0:.2f}".format(n)) for n in param])
+                print("Distr. {} done".format(name), file=sys.stderr)
+            except:
+                mses.append(np.inf)
+                ks_stats.append(np.inf)
+                ks_pvals.append(np.inf)
+                pdfs[name] = None
+                params[name] = ()
+                print("Distr. {} skipped".format(name), file=sys.stderr)
+        df_info = pd.DataFrame({"MSE": mses, "KS-stat": ks_stats, "KS-pval": ks_pvals}, index=distributions)
+        best_fits = df_info.sort_values(by="MSE").index[0:min(20, len(distributions))]
+        for name in best_fits:
+            plt.plot(hist_bins, pdfs[name], label="{} {}".format(name, params[name]))
+        # Initialize the output table of fitting errors
+        table = PrettyTable()
+        table.field_names = ["distr", "MSE", "KS-stat", "KS-pval"]
+        for name in best_fits:
+            table.add_row([name,
+                "{:.2E}".format(df_info.loc[name, "MSE"]),
+                "{:.2E}".format(df_info.loc[name, "KS-stat"]),
+                "{:.2E}".format(df_info.loc[name, "KS-pval"]),
+            ])
+        if verbose: print(table.get_string())
+        plt.legend(loc="upper right")
+        if save: plt.savefig("fit_hist.png")
+        plt.show()
 
 class UniformPopulation(Population):
 
