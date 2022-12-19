@@ -140,10 +140,10 @@ class Population(ABC):
             file.write(html.data)
         plt.close()
     
-    def fit_hist(self, distributions=None, verbose=True, save=True):
+    def fit_hist(self, distributions=None, verbose=2, save=True):
         """
         :param distributions: the distributions from scipy.stats to fit the histogram, or None to be all <DEFAULT: None>
-        :param verbose: whether to print the verbose <DEFAULT: True>
+        :param verbose: 0 stands for no printout, 1 stands for output, 2 stands for output and error log <DEFAULT: 2>
         :param save: whether to save the plot <DEFAULT: True>
         Description: plot the histogram at the end of the simulation, onto which we fit the specified distributions, and plot or print verbose
         """
@@ -180,14 +180,14 @@ class Population(ABC):
                 ks_pvals.append(ks_pval)
                 pdfs[name] = fit_pdf
                 params[name] = tuple([float("{0:.2f}".format(n)) for n in param])
-                print("Distr. {} done".format(name), file=sys.stderr)
+                if verbose >= 2: print("Distr. {} done".format(name), file=sys.stderr)
             except:
                 mses.append(np.inf)
                 ks_stats.append(np.inf)
                 ks_pvals.append(np.inf)
                 pdfs[name] = None
                 params[name] = ()
-                print("Distr. {} skipped".format(name), file=sys.stderr)
+                if verbose >= 2: print("Distr. {} skipped".format(name), file=sys.stderr)
         df_info = pd.DataFrame({"MSE": mses, "KS-stat": ks_stats, "KS-pval": ks_pvals}, index=distributions)
         best_fits = df_info.sort_values(by="MSE").index[0:min(20, len(distributions))]
         for name in best_fits:
@@ -201,7 +201,7 @@ class Population(ABC):
                 "{:.2E}".format(df_info.loc[name, "KS-stat"]),
                 "{:.2E}".format(df_info.loc[name, "KS-pval"]),
             ])
-        if verbose: print(table.get_string())
+        if verbose >= 1: print(table.get_string())
         plt.legend(loc="upper right")
         if save: plt.savefig("fit_hist.png")
         plt.show()
