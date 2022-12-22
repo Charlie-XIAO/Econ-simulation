@@ -27,16 +27,19 @@ Various kinds of graphs and animations are provided for observing the pattern of
 ## Requirements
 
 1. Clone the Github repository to your local device.
+
 2. Create a Python virtual environment on your local device.
+
 3. Activate that virtual environment, and install the required modules for this repository. You can do the follwing:
-    ```
-    pip3 install -r requirement.txt
-    ```
+```
+pip3 install -r requirement.txt
+```
+
 4. Go to `src/`, select some test from `test.py`, and run `test.py`. Due to the limitation of time for this project, we did not implement a user-friendly testing module. You may have to read the test functions in `test.py` to see how to use the `Population` class from `population.py` and the transaction functions from `transaction.py`.
 
 ## Results
 
-The video demonstration of our results and some distribution fitting plots can be found [here](https://charlie-xiao.github.io/education/Modeling-Simulation-Final-Videos.html). The techinal report of our project can be found in this repository.
+The video demonstration of our results and some distribution fitting plots can be found [here](https://charlie-xiao.github.io/education/Modeling-Simulation-Final-Videos.html). The techinal report, presentation slides, and other resources of our project can be found under `Paper/`.
 
 ## References
 
