@@ -39,10 +39,10 @@ pip3 install -r requirement.txt
 
 ## Results
 
-The video demonstration of our results and some distribution fitting plots can be found [here](https://charlie-xiao.github.io/education/Modeling-Simulation-Final-Videos.html). The techinal report, presentation slides, and other resources of our project can be found under `Paper/`.
+The video demonstration of our results and some distribution fitting plots can be found [here](https://charlie-xiao.github.io/pure/inequality-process-simulation-demonstration.html). The techinal report, presentation slides, and other resources of our project can be found under `Paper/`.
 
 ## References
 
-Thanks for Professor [*Charles S. Peskin*](https://www.math.nyu.edu/~peskin/)'s tutoring and [notes](https://www.math.nyu.edu/~peskin/modsim_lecture_notes/index.html). Also thanks Teaching Assistant [Mengjian Hua](mh5113@nyu.edu) for his suggestion on this project.
+Thanks for Professor [*Charles S. Peskin*](https://www.math.nyu.edu/~peskin/)'s tutoring and [notes](https://www.math.nyu.edu/~peskin/modsim_lecture_notes/index.html). Also thanks Teaching Assistant [Mengjian Hua](mailto:mh5113@nyu.edu) for his suggestion on this project.
 
 [1] John Angle. The Surplus Theory of Social Stratification and the Size Distribution of Personal Wealth. *Social Forces*, 65(2): 293-326, 1986
