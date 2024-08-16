@@ -1,6 +1,3 @@
-// The animations and printouts
-https://charlie-xiao.github.io/education/Modeling-Simulation-Final-Videos.html
-
 // The plots and printouts
 https://drive.google.com/file/d/1pswQdWOI0uTagPVZqgoroFzFpGNSuLw8/view?usp=sharing
 
