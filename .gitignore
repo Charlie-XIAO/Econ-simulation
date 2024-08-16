@@ -14,3 +14,6 @@ scheme.*
 *.log
 *.png
 *.html
+
+!demo/*.png
+!demo/*.html
